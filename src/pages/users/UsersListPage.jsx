@@ -3,6 +3,7 @@ import { Container, Card, Badge, Button, Modal, Form } from "react-bootstrap";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import DataTable from "react-data-table-component";
 import moment from "moment";
+import Swal from "sweetalert2";
 
 import { DashboardLayout } from "components/layouts";
 import { UserService } from "lib/services";
@@ -89,20 +90,33 @@ export const UsersListPage = () => {
   };
 
   const deleteUser = async (id) => {
-    await _userService
-      .deleteById(id)
-      .then((response) => {
-        getUsers();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (window.confirm("Proceed to remove this user?")) {
+      await _userService
+        .deleteById(id)
+        .then((response) => {
+          Swal.fire({
+            icon: "success",
+            text: "User removed successfully",
+          });
+          getUsers();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
-  const handleCreateUser = async () => {
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+
     await _userService
       .create(user)
       .then((response) => {
+        Swal.fire({
+          icon: "success",
+          text: "User added successfully",
+        });
+        toggleCreateUserModal(false);
         getUsers();
         setUser({
           first_name: "",
@@ -128,6 +142,7 @@ export const UsersListPage = () => {
     }
 
     setRandomPassword(result);
+    setUser({ ...user, password: result });
   };
 
   const toggleCreateUserModal = (bool) => {
@@ -180,20 +195,54 @@ export const UsersListPage = () => {
         <Modal.Body>
           <Form onSubmit={handleCreateUser}>
             <Form.Group className="form-group">
+              <Form.Select
+                onChange={(e) =>
+                  setUser({ ...user, user_role_id: e.target.value })
+                }
+                required
+              >
+                <option value="">--</option>
+                <option value={1}>ADMIN</option>
+                <option value={2}>ACCOUNTANT</option>
+                <option value={3}>STUDENT</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="form-group">
               <Form.Label>First Name</Form.Label>
-              <Form.Control type="text" />
+              <Form.Control
+                type="text"
+                onChange={(e) =>
+                  setUser({ ...user, first_name: e.target.value })
+                }
+                required
+              />
             </Form.Group>
             <Form.Group className="form-group">
               <Form.Label>Middle Name</Form.Label>
-              <Form.Control type="text" />
+              <Form.Control
+                type="text"
+                onChange={(e) =>
+                  setUser({ ...user, middle_name: e.target.value })
+                }
+              />
             </Form.Group>
             <Form.Group className="form-group">
               <Form.Label>Last Name</Form.Label>
-              <Form.Control type="text" />
+              <Form.Control
+                type="text"
+                onChange={(e) =>
+                  setUser({ ...user, last_name: e.target.value })
+                }
+                required
+              />
             </Form.Group>
             <Form.Group className="form-group">
               <Form.Label>E-mail</Form.Label>
-              <Form.Control type="text" />
+              <Form.Control
+                type="text"
+                onChange={(e) => setUser({ ...user, email: e.target.value })}
+                required
+              />
             </Form.Group>
             <Form.Group className="form-group">
               <Form.Label>Password</Form.Label>
@@ -203,6 +252,10 @@ export const UsersListPage = () => {
                 readOnly
               />
             </Form.Group>
+
+            <Button type="submit" variant="success" className="w-100">
+              CREATE
+            </Button>
           </Form>
         </Modal.Body>
       </Modal>
