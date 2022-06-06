@@ -1,23 +1,42 @@
 import React from "react";
 import { Container, Card, Image, Form, Button } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 import brandLogo from "assets/images/brand-logo.png";
 import { AuthLayout } from "components/layouts";
-import { UserService } from "lib/services";
+import { AuthService } from "lib/services";
 
 const pageSEO = {
   title: "Log In",
 };
 
 export const LoginPage = () => {
-  const _userService = new UserService();
+  const _authService = new AuthService();
   const [credentials, setCredentials] = React.useState({
     email: "",
     password: "",
   });
 
-  const handleLogin = async () => {
-    //
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    await _authService
+      .login(credentials)
+      .then((response) => {
+        console.log(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("user-role", response.data.user.user_role.name);
+        localStorage.setItem("auth-token", response.data.authToken);
+
+        window.location = "/dashboard";
+      })
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({
+          icon: "error",
+          text: "Failed to authenticate, invalid credentials provided",
+        });
+      });
   };
 
   return (

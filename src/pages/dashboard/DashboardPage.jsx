@@ -8,9 +8,15 @@ const pageSEO = {
 };
 
 export const DashboardPage = () => {
+  const getUserRole = () => {
+    let userRole = localStorage.getItem("user-role");
+
+    return userRole ? userRole.toUpperCase() : null;
+  };
+
   return (
     <DashboardLayout pageSEO={pageSEO}>
-      <Container fluid>Dashboard Page</Container>
+      <Container fluid>Logged-in as {getUserRole()}</Container>
     </DashboardLayout>
   );
 };

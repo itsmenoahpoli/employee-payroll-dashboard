@@ -14,13 +14,15 @@ export const SidebarNavigation = (props) => {
       navigate(url);
     };
 
-    return links.map((item) => (
-      <>
+    return links.map((item) => {
+      return item.hidden ? (
+        <></>
+      ) : (
         <Button key={item.url} onClick={() => handleNavigate(item.url)}>
           {item.icon} &nbsp; {item.label}
         </Button>
-      </>
-    ));
+      );
+    });
   };
 
   return (
